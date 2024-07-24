@@ -1,0 +1,108 @@
+import http from 'k6/http';
+import { check } from 'k6';
+import { config } from '../config/config.js';
+
+export function login(baseURL, username, password) {
+  const res = http.post(`${baseURL}/users/login`, JSON.stringify({
+      email: username,
+      password: password,
+  }), {
+      headers: {
+          'Content-Type': 'application/json',
+      },
+  });
+
+  check(res, {
+      'login successful': (r) => r.status === 200,
+  });
+
+  console.log(`Response Status: ${res.status}`);
+  console.log(`Response Body: ${res.body}`);
+
+  if (res.status === 200) {
+      return res.json().token;
+  } else {
+      console.log(`Login failed for user: ${username}`);
+      return null;
+  }
+}
+
+export function createUser(email, password, token) {
+  const url = `${config.baseURL}/users`;
+  const payload = JSON.stringify({
+      firstName: 'Test',
+      lastName: 'User',
+      email: email,
+      password: password
+  });
+
+  const params = {
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+      }
+  };
+
+  const response = http.post(url, payload, params);
+  check(response, {
+      'is status 201': (r) => r.status === 201,
+  });
+  return JSON.parse(response.body); 
+}
+/*
+export function getUserProfile(baseURL, token) {
+  const url = `${baseURL}/users/me`;
+  const params = { headers: { Authorization: `Bearer ${token}` } };
+  const response = http.get(url, params);
+
+  check(response, { 'user profile': (r) => r.status === 200 });
+  if (response.status !== 200) {
+    console.error('Login failed:', response.body);
+    return null;
+  }
+}
+*/
+export function createContact(baseURL, token, contact) {
+  const res = http.post(`${baseURL}/contacts`, JSON.stringify(contact), {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  console.log(`Create Contact Response Status: ${res.status}`);
+  console.log(`Create Contact Response Body: ${res.body}`);
+
+  check(res, {
+    'contact created': (r) => r.status === 201,
+  });
+
+  return JSON.parse(res.body);
+}
+
+/*
+export function getContact(baseURL, token, contactId) {
+  const res = http.get(`${baseURL}/contacts/${contactId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  console.log(`Get Contact Response Status: ${res.status}`);
+  console.log(`Get Contact Response Body: ${res.body}`);
+
+  check(res, { 'contact check': (r) => r.status === 200 });
+
+  return JSON.parse(res.body);
+}
+*/
+export function logout(baseURL, token) {
+  const url = `${baseURL}/users/logout`;
+  const params = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = http.post(url, null, params);
+
+  check(response, { 'logout successful': (r) => r.status === 200 });
+}
