@@ -18,8 +18,8 @@ export function getContact(baseURL, token, contactId) {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  console.log(`Get Contact Response Status: ${res.status}`);
-  console.log(`Get Contact Response Body: ${res.body}`);
+ // console.log(`Get Contact Response Status: ${res.status}`);
+ // console.log(`Get Contact Response Body: ${res.body}`);
 
   check(res, { 'contact check': (r) => r.status === 200 });
 
@@ -41,25 +41,3 @@ export function getContactList(baseURL, token) {
   }
 }
 
-/*  
-export function updateContact(baseURL, token, contactId, updateFields) {
-    const url = `${baseURL}/contacts/${contactId}`;
-    const params = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    };
-    const payload = JSON.stringify(updateFields);
-    const response = http.patch(url, payload, params);
-  
-    check(response, { 'updated contact': (r) => r.status === 200 });
-    
-    if (response.status === 200) {
-      return JSON.parse(response.body);
-    } else {
-      console.error('Failed to update contact');
-      return null;
-    }
-
-  }*/

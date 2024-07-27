@@ -16,8 +16,8 @@ export function login(baseURL, username, password) {
       'login successful': (r) => r.status === 200,
   });
 
-  console.log(`Response Status: ${res.status}`);
-  console.log(`Response Body: ${res.body}`);
+  //console.log(`Response Status: ${res.status}`);
+  //console.log(`Response Body: ${res.body}`);
 
   if (res.status === 200) {
       return res.json().token;
@@ -49,19 +49,6 @@ export function createUser(email, password, token) {
   });
   return JSON.parse(response.body); 
 }
-/*
-export function getUserProfile(baseURL, token) {
-  const url = `${baseURL}/users/me`;
-  const params = { headers: { Authorization: `Bearer ${token}` } };
-  const response = http.get(url, params);
-
-  check(response, { 'user profile': (r) => r.status === 200 });
-  if (response.status !== 200) {
-    console.error('Login failed:', response.body);
-    return null;
-  }
-}
-*/
 export function createContact(baseURL, token, contact) {
   const res = http.post(`${baseURL}/contacts`, JSON.stringify(contact), {
     headers: {
@@ -70,8 +57,8 @@ export function createContact(baseURL, token, contact) {
     },
   });
 
-  console.log(`Create Contact Response Status: ${res.status}`);
-  console.log(`Create Contact Response Body: ${res.body}`);
+  //console.log(`Create Contact Response Status: ${res.status}`);
+  //console.log(`Create Contact Response Body: ${res.body}`);
 
   check(res, {
     'contact created': (r) => r.status === 201,
@@ -80,20 +67,6 @@ export function createContact(baseURL, token, contact) {
   return JSON.parse(res.body);
 }
 
-/*
-export function getContact(baseURL, token, contactId) {
-  const res = http.get(`${baseURL}/contacts/${contactId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  console.log(`Get Contact Response Status: ${res.status}`);
-  console.log(`Get Contact Response Body: ${res.body}`);
-
-  check(res, { 'contact check': (r) => r.status === 200 });
-
-  return JSON.parse(res.body);
-}
-*/
 export function logout(baseURL, token) {
   const url = `${baseURL}/users/logout`;
   const params = {
