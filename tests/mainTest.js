@@ -1,19 +1,20 @@
 import { check, sleep } from 'k6';
 import { config } from '../config/config.js';
 import { login, createContact, logout } from '../utils/httpUtilPost.js';
-import { getUserProfile, getContact, getContactList } from '../utils/httpUtilGet.js';
-import { updateContact } from '../utils/httpUtil.js';
+import { getUserProfile, getContact } from '../utils/httpUtilGet.js';
+import {updateContact} from '../utils/contactOperations.js'
+import { generateContacts } from '../utils/generateContactData.js';
 
 export let options = {
   vus: 3,
-  duration: '30s',
+  duration: '10s',
+  //iterations: 4,
   thresholds: {
     'http_req_duration': ['p(95)<2000'],
     'http_req_failed': ['rate<0.1'],
   },
 };
 
-const contacts = JSON.parse(open('../data/contactData.json'));
 const usersData = JSON.parse(open('../data/usersData.json')); 
 
 export function setup() {
@@ -35,10 +36,14 @@ export default function (data) {
   }
 
   getUserProfile(baseURL, token);
+  
+  const numContacts = 2;
+  const contacts = generateContacts(numContacts);
 
   contacts.forEach(contact => {
     const createdContact = createContact(baseURL, token, contact);
     console.log('USERNAME CREATE CONTACT:', username);
+    //console.log('Created contact', contact);
 
     const retrievedContact = getContact(baseURL, token, createdContact._id);
 
@@ -51,7 +56,7 @@ export default function (data) {
 
     const updateFields = { firstName: 'First name updated' };
     const updatedContact = updateContact(baseURL, token, createdContact._id, updateFields);
-    console.log('USERNAME UPDATE CONTACT:', username);
+    //console.log('USERNAME UPDATE CONTACT:', username);
 
     const retrievedUpdatedContact = getContact(baseURL, token, updatedContact._id);
 

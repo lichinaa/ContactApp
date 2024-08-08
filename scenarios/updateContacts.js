@@ -1,8 +1,8 @@
 import { check, sleep } from 'k6';
-import { config } from '../config/config.js';
-import { login } from '../utils/httpUtilPost.js';
+import { config } from '../config/config.js'
 import { getContact, getContactList} from '../utils/httpUtilGet.js'
-import {updateContact} from '../utils/httpUtil.js'
+import {updateContact} from '../utils/contactOperations.js'
+import { initializeSetup, validateData} from '../utils/scenarioUtils.js'
 
 export const options = { 
     thresholds: {
@@ -13,26 +13,11 @@ export const options = {
 
 
   export function setup() {
-    const baseURL = config.baseURL;
-    const username = config.username;
-    const password = config.password;
-  
-    const token = login(baseURL, username, password);
-  
-    if (!token) {
-        throw new Error('Failed to login and retrieve token');
-    }
-  
-    return { baseURL, token };
+    return initializeSetup();
   }
   
   export default function (data) {
-  
-    const { baseURL, token } = data;
-  
-    if (!baseURL || !token) {
-      throw new Error('baseURL or token not initialized');
-    }
+  const { baseURL, token } = validateData(data);
 
   const contactList = getContactList(baseURL, token);
   if (contactList.length === 0) {

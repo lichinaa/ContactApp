@@ -1,7 +1,9 @@
 import { check, sleep } from 'k6';
-import { config } from '../config/config.js';
-import { login, createContact, logout } from '../utils/httpUtilPost.js';
+import { config } from '../config/config.js'
+import { createContact } from '../utils/httpUtilPost.js';
 import {getUserProfile, getContact} from '../utils/httpUtilGet.js'
+import { initializeSetup, validateData, finishLogout} from '../utils/scenarioUtils.js'
+import { generateContacts } from '../utils/generateContactData.js';
 
 export let options = { 
   thresholds: {
@@ -10,32 +12,17 @@ export let options = {
   },
 };
 
-const contacts = JSON.parse(open('../data/contactData.json'));
-
-
 export function setup() {
-  const baseURL = config.baseURL;
-  const username = config.username;
-  const password = config.password;
-
-  const token = login(baseURL, username, password);
-
-  if (!token) {
-      throw new Error('Failed to login and retrieve token');
-  }
-
-  return { baseURL, token };
+  return initializeSetup();
 }
 
 export default function (data) {
+  const { baseURL, token } = validateData(data);
 
-  const { baseURL, token } = data;
-
-  if (!baseURL || !token) {
-    throw new Error('baseURL or token not initialized');
-  }
-  
   getUserProfile(baseURL, token);
+
+  const numContacts = 2;
+  const contacts = generateContacts(numContacts);
 
   contacts.forEach(contact => {
     const createdContact = createContact(baseURL, token, contact);
@@ -49,7 +36,7 @@ export default function (data) {
     });
   });
 
-  logout(baseURL, token);
+  finishLogout(baseURL, token);
 
   sleep(1);
 }

@@ -1,5 +1,6 @@
 import http from 'k6/http';
 import { check } from 'k6';
+import { config } from '../config/config.js';
 
 export function getUserProfile(baseURL, token) {
   const url = `${baseURL}/users/me`;
